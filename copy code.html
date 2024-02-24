@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>City Population Finder</title>
+    <style>
+       .main {
+    height: 100vh;
+    width: 100%;
+    background-image: linear-gradient(to right top, rgba(209, 75, 75, 0.9), rgba(102, 243, 253, 0.8));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.main input {
+    height: 5vh;
+    width: 300px;
+    border: none;
+    border-radius: 5px;
+}
+
+.display {
+    background-color: rgba(12, 12, 12, 0.199);
+    height: 55vh;
+    border-radius: 20px;
+    width: 450px;
+}
+
+    </style>
+</head>
+
+<body>
+
+    <div class="main">
+        <input onkeyup="matchInput()" id="inp" type="text" placeholder="Enter City Name">
+        <div class="display"></div>
+    </div>
+</body>
+
+<script>
+    const inp = document.getElementById('inp');
+    const display = document.querySelector('.display');
+    let cities = null;
+    const url = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            cities = data;
+        })
+        .catch(error => {
+            console.error('Error fetching cities:', error);
+        });
+
+    let matchInput = () => {
+        if (!cities) return; // Wait until cities data is fetched
+        const filterCities = cities.filter(ele => {
+            return ele.city.toLowerCase().includes(inp.value.toLowerCase());
+        });
+        handleDisplay(filterCities);
+    }
+
+    let handleDisplay = (filterCities) => {
+        display.innerHTML = '';
+
+        if (inp.value !== '') {
+            display.style.display = "block";
+            filterCities.forEach((ele) => {
+                let c = ele.city;
+                let startIndex = ele.city.toLowerCase().indexOf(inp.value.toLowerCase());
+                let l = inp.value.length;
+                let highlightedCity;
+                if (startIndex == 0) {
+                    highlightedCity = `<span style="color:red">${c.slice(startIndex, startIndex + l)}</span>` + `${c.slice(startIndex + l)}`;
+                } else {
+                    highlightedCity = `${c.slice(0, startIndex)}` + `<span style="color:red">${c.slice(startIndex, startIndex + l)}</span>` + `${c.slice(startIndex + l)}`;
+                }
+                display.innerHTML += `
+                <div class="city-div">
+                    <h1>City: ${highlightedCity}<h1>
+                        <h2>Population: ${ele.population}</h2>
+                        </div>`;
+            });
+        } else {
+            display.style.display = "none";
+        }
+    }
+</script>
+
+</html>
